@@ -1,0 +1,106 @@
+382"}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>小说世界地图</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body { margin:0; display:flex; font-family:sans-serif; }
+
+/* 左侧 /
+#sidebar {
+  width:260px;
+  height:100vh;
+  overflow:auto;
+  background:#111;
+  color:#fff;
+  padding:10px;
+}
+
+.event {
+  padding:8px;
+  border-bottom:1px solid #333;
+  cursor:pointer;
+}
+.event:hover { background:#222; }
+
+/ 地图 */
+#map {
+  flex:1;
+  height:100vh;
+}
+</style>
+</head>
+
+<body>
+
+<div id="sidebar">
+  <h3>📜 剧情记录</h3>
+  <div id="eventList"></div>
+</div>
+
+<div id="map"></div>
+
+<script>
+var map = L.map('map').setView([35,105],5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:18
+}).addTo(map);
+
+var events = JSON.parse(localStorage.getItem('events') || "[]");
+
+function renderList(){
+  var list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  events.forEach((e,i)=>{
+    var div = document.createElement("div");
+    div.className = "event";
+    div.innerHTML = "📍 " + e.title;
+
+    div.onclick = ()=>{
+      map.setView(e.latlng, 8);
+    };
+
+    list.appendChild(div);
+  });
+}
+
+events.forEach(e=>{
+  var marker = L.marker(e.latlng).addTo(map);
+  marker.bindPopup("<b>"+e.title+"</b><br>"+e.desc);
+});
+
+map.on('click', function(e){
+
+  var title = prompt("事件标题");
+  if(!title) return;
+
+  var desc = prompt("剧情内容");
+  if(!desc) return;
+
+  var data = {
+    title:title,
+    desc:desc,
+    latlng:e.latlng
+  };
+
+  events.push(data);
+  localStorage.setItem("events", JSON.stringify(events));
+
+  var marker = L.marker(e.latlng).addTo(map);
+  marker.bindPopup("<b>"+title+"</b><br>"+desc);
+
+  renderList();
+});
+
+renderList();
+</script>
+
+</body>
+</
